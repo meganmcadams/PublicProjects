@@ -37,21 +37,86 @@ def parse_file(filename):
 		# Loop through data until EOF
 		data = file.readline()
 		
-	print("Number of processes: " , num_p)
-	print("Number of resources: ", num_r)	
-	print("Resource Units: ", units_r)
-	print(matrix)
+	#print("Number of processes: " , num_p)
+	#print("Number of resources: ", num_r)	
+	#print("Resource Units: ", units_r)
+	#print(matrix)
 	
 	
 	return matrix, units_r
 
 # Reduce the give matrix/graph if possible, returning the new matrix and the status of the operation	
-def reduce_graph(matrix):
+def reduce_graph(matrix, units_r):
 
 	reduceable = True
 	
-	# Return the matrix after reduction, along with T/F for success of operation
-	return matrix, reduceable
+	# Get total # of units being used currently, and compare to what is being requested
+	used_r = [0] * len(units_r)
+	requested_r = [0] * len(units_r)	
+	size_p = len(matrix) - len(units_r)
+	size_r = len(units_r)
+	
+	# Get currently used resources
+	for i in range(0, size_p):
+		for j in range(0, size_r):			
+			used_r[j] += matrix[j+size_p][i]
+	
+	# Get requested resources
+	for i in range(0, size_p):
+		for j in range(0, size_r):
+			requested_r[j] += matrix[i][j+size_p]
+
+	#print(used_r)
+	#print(requested_r)
+	# Is a process currently blocked
+	# If a process is not currently requesting a resource, it is assumed that it is not currently blocked.
+	process_blocked = [0] * size_p
+	for i in range(0, size_p):
+		for j in range(0, size_r):
+			if(matrix[i][j+size_p] >= 1):
+				if process_blocked[i] != 1:
+					process_blocked[i] = 1
+	
+	none_blocked = False
+	ind = 0
+	avail_r = [0] * size_r
+	while(ind  < size_p and not none_blocked):
+		# Free currently allocated resources for any process that can run
+		for i in range (0, size_p):
+			if not(process_blocked[i]):
+				for j in range(0, size_r):
+					used_r[j] = used_r[j] - matrix[j+size_p][i]
+			
+		
+		for i in range(0, size_r):
+			avail_r[i] =  units_r[i] - used_r[i]
+		check = 0
+		# Any processes that can now run with the newly released resources can also be reduced
+		for i in range(0, size_p):
+			for j in range(0, size_r):
+				#print(matrix[i][j+size_p], avail_r[j])
+				if not check:
+					if not matrix[i][j+size_p] <= avail_r[j]:
+						check = 1
+			process_blocked[i] = check
+			check = 0
+		
+		has_block = 0
+		for i in range(0, size_p):
+			if process_blocked[i]:
+				has_block = 1
+		if has_block:
+			none_blocked = False
+		else:
+			none_blocked = True
+		print(none_blocked)
+		ind += 1
+
+	print('Blocked Processes - 1 for blocked, 0 for unblocked: ', process_blocked)
+	print('')
+	
+	
+	return none_blocked
 	
 	
 def main():
@@ -60,10 +125,14 @@ def main():
 	filename = input("Enter the filename to be parsed: ")
 	
 	# Get adjacency matrix from file, along with resource counts
-	mat, units_r = parse_file(filename)
+	matrix, units_r = parse_file(filename)
 	
+	reduced = reduce_graph(matrix, units_r)
 	
-
+	if reduced:
+		print('The matrix was fully reducible, indicating that the process\'s were not deadlocked.')
+	else:
+		print('The matrix was not fully reducible, indicating that the process\'s were deadlocked.')
 
 
 
