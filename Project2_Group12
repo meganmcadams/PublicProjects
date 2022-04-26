@@ -9,6 +9,7 @@ def to_int(item): # function that tries to turn the variable into an integer and
 	except:
 		print("ERROR: Could not convert",item,"to an integer.")
 		exit()
+	return item
 
 # Function that parses a file with the given name, returning the appropriate matrix(s)
 
@@ -18,7 +19,6 @@ def parse_file(filename):
 	matrix = []
 	num_p, num_r = 0, 0
 	units_r = 0
-
 	
 	file = open(filename, "r")
 	data = file.readline()
@@ -34,11 +34,11 @@ def parse_file(filename):
 				num_r = data[14:]
 			# Get number of units of each resource
 			elif units_r == 0:
-				tmp = [int(x) for x in data.split(',')]
+				tmp = [to_int(x) for x in data.split(',')]
 				units_r = tmp
 			# Get adjacency matrix
 			else:
-				tmp = [int(x) for x in data.split(',')]
+				tmp = [to_int(x) for x in data.split(',')]
 				matrix.append(tmp)
 				
 				
