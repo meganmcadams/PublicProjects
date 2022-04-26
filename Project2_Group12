@@ -1,9 +1,17 @@
 # Group 12 - Project 2
 # Jeremy Lynch
-# Meg
+# Megan McAdams
 # Divin
 
-# Function that parses a file with the given name, returning the appropriate matrix(s) 
+def to_int(item): # function that tries to turn the variable into an integer and exits if it can't
+	try:
+		item = int(item)
+	except:
+		print("ERROR: Could not convert",item,"to an integer.")
+		exit()
+
+# Function that parses a file with the given name, returning the appropriate matrix(s)
+
 def parse_file(filename):
 	
 	data = ""
@@ -37,11 +45,15 @@ def parse_file(filename):
 		# Loop through data until EOF
 		data = file.readline()
 		
-	#print("Number of processes: " , num_p)
-	#print("Number of resources: ", num_r)	
-	#print("Resource Units: ", units_r)
-	#print(matrix)
-	
+	print() # newline
+
+	# turn variables into integers
+	to_int(num_p)
+	to_int(num_r)
+
+	print("Number of processes:" , num_p)
+	print("Number of resources:", num_r)	
+	print("Resource Units:", units_r)
 	
 	return matrix, units_r
 
@@ -80,14 +92,14 @@ def reduce_graph(matrix, units_r):
 	none_blocked = False
 	ind = 0
 	avail_r = [0] * size_r
-	while(ind  < size_p and not none_blocked):
+
+	while(ind < size_p and not none_blocked):
 		# Free currently allocated resources for any process that can run
 		for i in range (0, size_p):
 			if not(process_blocked[i]):
 				for j in range(0, size_r):
 					used_r[j] = used_r[j] - matrix[j+size_p][i]
 			
-		
 		for i in range(0, size_r):
 			avail_r[i] =  units_r[i] - used_r[i]
 		check = 0
@@ -109,12 +121,11 @@ def reduce_graph(matrix, units_r):
 			none_blocked = False
 		else:
 			none_blocked = True
-		print(none_blocked)
+		#print(none_blocked)
 		ind += 1
 
-	print('Blocked Processes - 1 for blocked, 0 for unblocked: ', process_blocked)
+	print('Blocked Processes (1 for blocked, 0 for unblocked):', process_blocked)
 	print('')
-	
 	
 	return none_blocked
 	
@@ -130,12 +141,11 @@ def main():
 	reduced = reduce_graph(matrix, units_r)
 	
 	if reduced:
-		print('The matrix was fully reducible, indicating that the process\'s were not deadlocked.')
+		print('The matrix was fully reducible, indicating that the processes were not deadlocked.')
 	else:
-		print('The matrix was not fully reducible, indicating that the process\'s were deadlocked.')
+		print('The matrix was not fully reducible, indicating that the processes were deadlocked.')
 
 
 
 if __name__ == "__main__":
 	main()
-		
